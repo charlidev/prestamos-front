@@ -1,72 +1,63 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Calculadora de Préstamos</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <img src="assets/logo_monte.png" alt="Logo" class="logo" />
+<script>
+  async function calcularPrestamo() {
+    const id = document.getElementById('material').value;
+    const gramos = document.getElementById('gramos').value;
+    const resultado = document.getElementById('resultado');
 
-  <h1>Calculadora de Préstamos por Material</h1>
+    if (!gramos || gramos <= 0) {
+      resultado.innerText = 'Por favor ingresa un peso en gramos válido.';
+      return;
+    }
 
-  <label for="material">Selecciona el material:</label>
-  <select id="material">
-    <option value="001">Oro puro 24k</option>
-    <option value="002">Oro alto 18k</option>
-    <option value="003">Oro medio 14k</option>
-    <option value="004">Oro bajo 10k</option>
-    <option value="005">Plata ley .925</option>
-    <option value="006">Titanio</option>
-    <option value="007">Rodio</option>
-  </select>
+    try {
+      // 1. Obtener token desde microservicio de autenticación
+      const loginResponse = await fetch("http://poc-tokens-alb1-267066518.ap-south-1.elb.amazonaws.com/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          username: "admin",
+          password: "admin"
+        })
+      });
 
-  <label for="gramos">Peso en gramos:</label>
-  <input type="number" id="gramos" placeholder="Ingresa los gramos..." />
+      const loginData = await loginResponse.json();
 
-  <button onclick="calcularPrestamo()">Calcular Préstamo</button>
-
-  <div id="resultado"></div>
-
-  <script>
-    async function calcularPrestamo() {
-      const id = document.getElementById('material').value;
-      const gramos = document.getElementById('gramos').value;
-      const resultado = document.getElementById('resultado');
-
-      if (!gramos || gramos <= 0) {
-        resultado.innerText = 'Por favor ingresa un peso en gramos válido.';
+      if (!loginResponse.ok || !loginData.token) {
+        resultado.innerText = 'No se pudo obtener el token.';
         return;
       }
 
-      try {
-        const response = await fetch("/api/v1/prestamo", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNzQ5ODU0OTU3LCJleHAiOjE3NDk4NTg1NTd9.80B8M5cjWvBSUT7K0CD1MPM64Qa_kaYDccV3ocXQBsI"
-          },
-          body: JSON.stringify({
-            idProducto: id,
-            gramaje: parseFloat(gramos)
-          })
-        });
+      const token = loginData.token;
 
-        const data = await response.json();
-        console.log(data);
+      // 2. Usar el token para hacer la petición al microservicio de préstamos
+      const response = await fetch("http://poc-empenios-alb2-510941308.ap-south-1.elb.amazonaws.com/api/v1/prestamo", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "authorization": token
+        },
+        body: JSON.stringify({
+          idProducto: id,
+          gramaje: parseFloat(gramos)
+        })
+      });
 
-        if (response.ok && data.valorEmpenio) {
-          resultado.innerHTML = `<strong>Préstamo estimado:</strong> $${data.valorEmpenio}`;
-        } else if (data.message) {
-          resultado.innerText = `Mensaje del servidor: ${data.message}`;
-        } else {
-          resultado.innerText = 'No se pudo calcular el préstamo.';
-        }
-      } catch (error) {
-        resultado.innerText = 'Error al conectar con la API.';
+      const data = await response.json();
+      console.log(data);
+
+      if (response.ok && data.valorEmpenio) {
+        resultado.innerHTML = `<strong>Préstamo estimado:</strong> $${data.valorEmpenio}`;
+      } else if (data.message) {
+        resultado.innerText = `Mensaje del servidor: ${data.message}`;
+      } else {
+        resultado.innerText = 'No se pudo calcular el préstamo.';
       }
+
+    } catch (error) {
+      console.error(error);
+      resultado.innerText = 'Error al conectar con la API.';
     }
-  </script>
-</body>
-</html>
+  }
+</script>
