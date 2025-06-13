@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
   <title>Calculadora de Préstamos</title>
   <link rel="stylesheet" href="style.css">
 </head>
@@ -42,11 +41,11 @@
       }
 
       try {
-        const response = await fetch("https://poc-empenios-alb2-510941308.ap-south-1.elb.amazonaws.com/api/v1/prestamo", {
+        const response = await fetch("http://poc-empenios-alb2-510941308.ap-south-1.elb.amazonaws.com/api/v1/prestamo", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNzQ5ODM5NDYwLCJleHAiOjE3NDk4NDMwNjB9.W_LhTzer5MkYS6SM4sKTx13naO2lLn7abwRmwMhbdPE"
+            "authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNzQ5ODQzOTUwLCJleHAiOjE3NDk4NDc1NTB9.fUHjY_nt96jyEs-v19QOTUhkyKGyhO0g_0AEp2AAxMU"
           },
           body: JSON.stringify({
             idProducto: id,
