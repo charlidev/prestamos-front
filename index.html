@@ -23,7 +23,7 @@
   </select>
 
   <label for="gramos">Peso en gramos:</label>
-  <input id="gramos" placeholder="Ingresa los gramos...">
+  <input type="number" id="gramos" placeholder="Ingresa los gramos...">
 
   <button onclick="calcularPrestamo()">Calcular Préstamo</button>
 
@@ -41,14 +41,29 @@
       }
 
       try {
-        const response = await fetch(`http://localhost:3000/api/prestamo?id=${id}&gramos=${gramos}`);
-        const data = await response.json();
+        const response = await fetch("http://poc-empenios-alb2-510941308.ap-south-1.elb.amazonaws.com/api/v1/prestamo", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNzQ5ODM5NDYwLCJleHAiOjE3NDk4NDMwNjB9.W_LhTzer5MkYS6SM4sKTx13naO2lLn7abwRmwMhbdPE"
+          },
+          body: JSON.stringify({
+            idProducto: id,
+            gramaje: parseFloat(gramos)
+          })
+        });
 
-        if (data && data.montoPrestamo) {
-          resultado.innerHTML = `<strong>Préstamo estimado:</strong> $${data.montoPrestamo}`;
-        } else {
-          resultado.innerText = 'No se pudo calcular el préstamo.';
-        }
+      const data = await response.json();
+      console.log(data);
+
+      if (response.ok && data.valorEmpenio) {
+        resultado.innerHTML = `<strong>Préstamo estimado:</strong> $${data.valorEmpenio}`;
+      } else if (data.message) {
+        resultado.innerText = `Mensaje del servidor: ${data.message}`;
+      } else {
+        resultado.innerText = 'No se pudo calcular el préstamo.';
+      }
+
       } catch (error) {
         resultado.innerText = 'Error al conectar con la API.';
       }
