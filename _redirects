@@ -1,1 +1,2 @@
 /api/* http://poc-empenios-alb2-510941308.ap-south-1.elb.amazonaws.com/api/:splat 200
+/login  http://poc-tokens-alb1-267066518.ap-south-1.elb.amazonaws.com/login 200
