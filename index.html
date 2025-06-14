@@ -63,7 +63,7 @@
       const token = loginData.token;
 
       // 2. Usar el token para hacer la petición al microservicio de préstamos
-      const response = await fetch("http://poc-empenios-alb2-510941308.ap-south-1.elb.amazonaws.com/api/v1/prestamo", {
+      const response = await fetch("/api/v1/prestamo", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
